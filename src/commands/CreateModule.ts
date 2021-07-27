@@ -1,10 +1,5 @@
 import inquirer from "inquirer";
-import config from "config"
-import {cloneRepo} from "../util/Git";
-import ora from "ora"
-import {getForkengineRoot, getProjectVersion, isForkengineProject} from "../util/FileUtil";
-import * as fs from "fs";
-import * as Path from "path";
+import {getProjectVersion, isForkengineProject} from "../util/FileUtil";
 import {IModuleCreator} from "../versions/ModuleCreator";
 import ModuleCreatorV1 from "../versions/1.0.0/ModuleCreator";
 

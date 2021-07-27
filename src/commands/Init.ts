@@ -1,10 +1,10 @@
 import {Command} from "commander";
 import inquirer from "inquirer";
-import config from "config"
 import {cloneRepo} from "../util/Git";
 import ora from "ora"
 import CreateModule from "./CreateModule";
 import path from "path";
+import Config from "../util/Config";
 
 
 export default async function (projectName?: string, options?: {}) {
@@ -28,7 +28,7 @@ export default async function (projectName?: string, options?: {}) {
         text: "Cloning repository"
     }).start()
 
-    const repoName = config.get<string>("templateProject")
+    const repoName = Config.get<string>("templateProject")
     try {
         await cloneRepo(repoName, projectName)
     } catch {
