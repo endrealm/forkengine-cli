@@ -1,6 +1,7 @@
 import {ModuleJSON} from "../file-mappins/FileMappings";
 import * as fs from "fs";
 import * as Path from "path";
+import { type } from "os";
 
 export function isRemoteRepository(name: string): boolean {
     return name.split("/").length > 1;
@@ -22,3 +23,5 @@ export async function getModuleConfig(source: string, projectRoot: string, branc
 export async function getLocalModuleVersion(name: string, projectRoot: string): Promise<string> {
 
 }
+
+
