@@ -15,7 +15,7 @@ export default class ModuleCreator implements IModuleCreator {
             text: `Creating module "${moduleName}"`,
         }).start()
 
-        await fs.promises.mkdir(Path.join(getForkengineRoot(), "src", "app", "modules", moduleName), {recursive: true})
+        await fs.promises.mkdir(Path.join(getForkengineRoot(), "modules", moduleName), {recursive: true})
 
         spinner.succeed(`Created module "${moduleName}"`)
     }

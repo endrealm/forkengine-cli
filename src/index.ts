@@ -6,6 +6,7 @@ import path from 'path';
 import {program} from 'commander';
 import Init from "./commands/Init";
 import CreateModule from "./commands/CreateModule";
+import Update from "./commands/Update";
 
 
 clear();
@@ -14,6 +15,12 @@ console.log(
         figlet.textSync('forkengine-cli', { horizontalLayout: 'full' })
     )
 );
+
+program
+    .command("update", {isDefault: false})
+    .description("installs all dependencies")
+    .action(Update)
+
 program
     .command("init", {isDefault: false})
     .argument("[project-name]")
