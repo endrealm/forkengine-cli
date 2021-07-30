@@ -31,5 +31,9 @@ export default async function(options?: {}) {
         throw new Error(`Unsupported project version detected: ${version}`)
 
     const results = await dependencyHandler.handleDependencies(moduleFiles, root);
-    console.log(util.inspect(results, {showHidden: false, depth: null}))
+
+    if(results.sourceConflicts.length > 0 || results.branchConflicts.length > 0)
+        throw new Error("Unresolved conflicts")
+
+    await dependencyHandler.updateDependencies(results.dependencies, root, version)
 }

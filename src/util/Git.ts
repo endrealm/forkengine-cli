@@ -2,7 +2,7 @@ import * as shell from "shelljs"
 import * as fs from "fs";
 import * as Path from "path";
 
-export async function cloneRepo(url: string, folderName: string, location: string = process.cwd()) {
+export async function cloneRepo(url: string, branch: string | undefined, folderName: string, location: string = process.cwd()) {
     const path = Path.join(location, folderName);
     if(fs.existsSync(path)) {
         throw new Error("Directory exists already")
@@ -10,8 +10,11 @@ export async function cloneRepo(url: string, folderName: string, location: strin
 
     shell.config.silent = true
     shell.cd(location)
+
+    const branchExtension = branch? `--branch ${branch} ` : ""
+
     await new Promise<void>(resolve => {
-        shell.exec(`git clone ${url} ${folderName}`, () => {
+        shell.exec(`git clone ${branchExtension}${url} ${folderName}`, () => {
             resolve();
         })
     })

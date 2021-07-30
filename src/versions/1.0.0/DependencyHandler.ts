@@ -9,6 +9,8 @@ import {
     isRemoteRepository
 } from "../../util/ModuleUtil";
 import util from "util";
+import {cloneRepo} from "../../util/Git";
+import Path from "path";
 
 export default class DependencyHandler implements IDependencyHandler{
 
@@ -47,8 +49,6 @@ export default class DependencyHandler implements IDependencyHandler{
 
     private simplifyDependencies(dependencies: Dependency[]): DependencyResolverResult {
         const result: DependencyResolverResult = {dependencies: [], sourceConflicts: [], branchConflicts: []}
-
-        console.log(util.inspect(dependencies, {showHidden: false, depth: null}))
 
         dependencies.forEach(dependency => {
             const already = result.dependencies.find(dep => dep.name === dependency.name);
@@ -96,6 +96,9 @@ export default class DependencyHandler implements IDependencyHandler{
                 }
             } else {
                 // clone it
+
+                const path = Path.join(projectRoot, "modules")
+                await cloneRepo(module.source, module.branch, module.name, path)
             }
         }
     }

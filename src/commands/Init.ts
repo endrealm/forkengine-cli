@@ -30,7 +30,7 @@ export default async function (projectName?: string, options?: {}) {
 
     const repoName = Config.get<string>("templateProject")
     try {
-        await cloneRepo(repoName, projectName)
+        await cloneRepo(repoName, undefined, projectName)
     } catch {
         spinner.fail("Failed to clone repository")
         process.exit(1)
