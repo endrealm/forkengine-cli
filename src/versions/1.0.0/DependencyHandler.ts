@@ -1,6 +1,11 @@
 import {IDependencyHandler} from "../DependencyHandler";
 import {ModuleJSON} from "../../file-mappins/FileMappings";
-import {Dependency, DependencyResolverResult, isSameDependency} from "../../dependencies/Dependency";
+import {
+    Dependency,
+    DependencyResolverResult,
+    isSameDependency,
+    ModuleDependencyConflict
+} from "../../dependencies/Dependency";
 import {
     getLocalModuleConfig,
     getModuleConfig,
@@ -57,16 +62,12 @@ export default class DependencyHandler implements IDependencyHandler{
                     already.weak = already.weak && dependency.weak;
                 } else {
                     if(already.source !== dependency.source) {
-                        result.sourceConflicts.push({
-                            module: already.name,
-                            dependants: [{dependant: already.dependents, value: already.source}, {dependant: dependency.dependents, value: dependency.source}]
-                        })
+                        const values = [{dependants: already.dependents, value: already.source}, {dependants: dependency.dependents, value: dependency.source}];
+                        this.addConflict(already.name, values, result.sourceConflicts)
                     }
                     if(already.branch !== dependency.branch) {
-                        result.branchConflicts.push({
-                            module: already.name,
-                            dependants: [{dependant: already.dependents, value: already.branch}, {dependant: dependency.dependents, value: dependency.branch}]
-                        })
+                        const values = [{dependants: already.dependents, value: already.branch}, {dependants: dependency.dependents, value: dependency.branch}];
+                        this.addConflict(already.name, values, result.branchConflicts)
                     }
 
                     return;
@@ -76,7 +77,48 @@ export default class DependencyHandler implements IDependencyHandler{
             }
         })
 
+        result.branchConflicts = this.simplifyConflicts(result.branchConflicts)
+        result.sourceConflicts = this.simplifyConflicts(result.sourceConflicts)
+
         return result
+    }
+
+
+    private addConflict(module: string, values: {dependants: string[], value: string | undefined}[], conflicts: ModuleDependencyConflict[]): void {
+        values.forEach(value => {
+            conflicts.push({
+                module,
+                dependants: [{
+                    dependant: value.dependants,
+                    value: value.value
+                }]
+            })
+        })
+    }
+
+
+    private simplifyConflicts(conflicts: ModuleDependencyConflict[]): ModuleDependencyConflict[] {
+        const result: ModuleDependencyConflict[] = []
+
+        conflicts.forEach(conflict => {
+           const entry = result.find(module => module.module === conflict.module)
+           if(entry) {
+               conflict.dependants.forEach(dependant => {
+                   const valueEntry = entry.dependants.find(dep => dep.value === dependant.value)
+                   if(valueEntry) {
+                       dependant.dependant.forEach(dep => {
+                           if(valueEntry.dependant.indexOf(dep) < 0) valueEntry.dependant.push(dep)
+                       })
+                   } else {
+                       entry.dependants.push(dependant)
+                   }
+               })
+           } else {
+               result.push(conflict)
+           }
+        })
+
+        return result;
     }
 
 
@@ -85,14 +127,8 @@ export default class DependencyHandler implements IDependencyHandler{
             if(await isModuleInstalled(module.name, projectRoot)) {
                 const version = (await getLocalModuleConfig(module.name, projectRoot)).version;
 
-                if(!module.weak && version.split(".")[0] !== projectVersion.split(".")[0]) {
-                    // update module
-
-                    if(isRemoteRepository(module.source)) {
-                        // git pull
-                    } else {
-                        throw new Error("Local dependency " + module.name + " uses an outdated engine version")
-                    }
+                if(isRemoteRepository(module.source)) {
+                    // Update if necessary
                 }
             } else {
                 // clone it
