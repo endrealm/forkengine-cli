@@ -12,7 +12,7 @@ export default class ModuleLoader implements IModuleLoader {
 
     async loadModuleJSON(moduleName: string, location: string = process.cwd()): Promise<ModuleJSON> {
         const moduleJSONPath = Path.join(getForkengineRoot(location), "modules", moduleName, "forkengine-module.json");
-        return JSON.parse(await fs.promises.readFile(moduleName, "utf8")) as ModuleJSON;
+        return JSON.parse(await fs.promises.readFile(moduleJSONPath, "utf8")) as ModuleJSON;
     }
 
     async getAllModules(location: string): Promise<string[]> {

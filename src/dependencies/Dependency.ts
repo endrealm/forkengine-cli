@@ -15,6 +15,7 @@ export function isSameDependency(dep1: Dependency, dep2: Dependency): boolean {
 
 
 export type ModuleDependencyConflict = {
+    module: string
     dependants: {
         dependant: string[],
         value?: string

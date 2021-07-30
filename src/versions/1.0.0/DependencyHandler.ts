@@ -1,7 +1,14 @@
 import {IDependencyHandler} from "../DependencyHandler";
 import {ModuleJSON} from "../../file-mappins/FileMappings";
 import {Dependency, DependencyResolverResult, isSameDependency} from "../../dependencies/Dependency";
-import {getModuleConfig, getModuleName} from "../../util/ModuleUtil";
+import {
+    getLocalModuleConfig,
+    getModuleConfig,
+    getModuleName,
+    isModuleInstalled,
+    isRemoteRepository
+} from "../../util/ModuleUtil";
+import util from "util";
 
 export default class DependencyHandler implements IDependencyHandler{
 
@@ -12,7 +19,7 @@ export default class DependencyHandler implements IDependencyHandler{
         // add all dependencies from already existing modules
         for (let moduleName in moduleFiles) {
             const module = moduleFiles[moduleName];
-            dependencies.push(...this.getDependenciesFromModule(moduleName, module))
+            dependencies.push(...DependencyHandler.getDependenciesFromModule(moduleName, module))
         }
 
         // keep adding remote dependencies until all are added
@@ -22,7 +29,7 @@ export default class DependencyHandler implements IDependencyHandler{
 
             for (let module of dependencies) {
                 const config = await  getModuleConfig(module.source, projectRoot)
-                const moduleDependencies = this.getDependenciesFromModule(module.name, config)
+                const moduleDependencies = DependencyHandler.getDependenciesFromModule(module.name, config)
                 moduleDependencies.forEach(i => {
                     const sameDep = dependencies.find(j => isSameDependency(i, j))
                     if(sameDep) {
@@ -34,14 +41,14 @@ export default class DependencyHandler implements IDependencyHandler{
             }
         }
 
-        const result = this.simplifyDependencies(dependencies);
-
-        return {branchConflicts: result.branchConflicts, sourceConflicts: result.sourceConflicts, dependencies: result.dependencies};
+        return this.simplifyDependencies(dependencies);
     }
 
 
     private simplifyDependencies(dependencies: Dependency[]): DependencyResolverResult {
         const result: DependencyResolverResult = {dependencies: [], sourceConflicts: [], branchConflicts: []}
+
+        console.log(util.inspect(dependencies, {showHidden: false, depth: null}))
 
         dependencies.forEach(dependency => {
             const already = result.dependencies.find(dep => dep.name === dependency.name);
@@ -51,11 +58,13 @@ export default class DependencyHandler implements IDependencyHandler{
                 } else {
                     if(already.source !== dependency.source) {
                         result.sourceConflicts.push({
+                            module: already.name,
                             dependants: [{dependant: already.dependents, value: already.source}, {dependant: dependency.dependents, value: dependency.source}]
                         })
                     }
                     if(already.branch !== dependency.branch) {
                         result.branchConflicts.push({
+                            module: already.name,
                             dependants: [{dependant: already.dependents, value: already.branch}, {dependant: dependency.dependents, value: dependency.branch}]
                         })
                     }
@@ -71,14 +80,35 @@ export default class DependencyHandler implements IDependencyHandler{
     }
 
 
-    private getDependenciesFromModule(moduleName: string, module: ModuleJSON): Dependency[] {
+    async updateDependencies(dependencies: Dependency[], projectRoot: string, projectVersion: string): Promise<void> {
+        for (let module of dependencies) {
+            if(await isModuleInstalled(module.name, projectRoot)) {
+                const version = (await getLocalModuleConfig(module.name, projectRoot)).version;
+
+                if(!module.weak && version.split(".")[0] !== projectVersion.split(".")[0]) {
+                    // update module
+
+                    if(isRemoteRepository(module.source)) {
+                        // git pull
+                    } else {
+                        throw new Error("Local dependency " + module.name + " uses an outdated engine version")
+                    }
+                }
+            } else {
+                // clone it
+            }
+        }
+    }
+
+
+    private static getDependenciesFromModule(moduleName: string, module: ModuleJSON): Dependency[] {
         let dependencies: Dependency[] = [];
         for (let dependencySource in module.dependencies) {
             if(!module.dependencies.hasOwnProperty(dependencySource)) continue
 
             const dependency = module.dependencies[dependencySource]
             dependencies.push({
-                name: moduleName,
+                name: getModuleName(dependencySource),
                 dependents: [moduleName],
                 source: dependencySource,
                 branch: dependency.branch,
