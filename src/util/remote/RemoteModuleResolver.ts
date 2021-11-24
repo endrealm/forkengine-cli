@@ -1,4 +1,4 @@
-import {ModuleJSON} from "../../file-mappins/FileMappings";
+import {ModuleJSON} from "../../file-mappings/FileMappings";
 import fetch from "node-fetch";
 
 export interface RemoteModuleResolver {

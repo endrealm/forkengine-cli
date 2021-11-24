@@ -1,13 +1,12 @@
 import {getForkengineRoot, getProjectVersion, isForkengineProject} from "../util/FileUtil";
 import {IModuleLoader} from "../versions/ModuleLoader";
 import ModuleLoaderV1 from "../versions/1.0.0/ModuleLoader"
-import {IDependencyHandler} from "../versions/DependencyHandler";
-import DependencyHandlerV1 from "../versions/1.0.0/DependencyHandler"
-import {ModuleJSON} from "../file-mappins/FileMappings";
+import {ModuleJSON} from "../file-mappings/FileMappings";
 import * as util from "util";
-import {ModuleDependencyConflict} from "../dependencies/Dependency";
 import inquirer from "inquirer";
 import {deprecate} from "util";
+import { IDependencyHandler } from "../versions/DependencyHandler";
+import { DependencyHandlerV1 } from "../versions/1.0.0/DepenencyHandler";
 
 export default async function(options?: {}) {
     if(!isForkengineProject()) {
@@ -18,28 +17,20 @@ export default async function(options?: {}) {
 
     const version = getProjectVersion()
 
-    const moduleLoaders: IModuleLoader[] = [new ModuleLoaderV1()]
+    const moduleLoaders: IModuleLoader[] = [new ModuleLoaderV1(root)]
     const moduleLoader = moduleLoaders.find(moduleLoader => moduleLoader.supports(version))
     if(!moduleLoader)
         throw new Error(`Unsupported project version detected: ${version}`)
 
-    const moduleFiles: {[moduleName: string]: ModuleJSON} = {}
-    for(const moduleName of await moduleLoader.getAllModules()) {
-        moduleFiles[moduleName] = await moduleLoader.loadModuleJSON(moduleName)
-    }
 
-    const dependencyHandlers: IDependencyHandler[] = [new DependencyHandlerV1()]
-    const dependencyHandler = dependencyHandlers.find(dependencyHandler => dependencyHandler.supports(version))
+    const dependencyHandlers: IDependencyHandler[] = [new DependencyHandlerV1(moduleLoader, root)]
+    const dependencyHandler = dependencyHandlers.find(handler => handler.supports(version))
     if(!dependencyHandler)
         throw new Error(`Unsupported project version detected: ${version}`)
 
-    const results = await dependencyHandler.handleDependencies(moduleFiles, root);
+    await dependencyHandler.resolveProject()
 
-    if(results.sourceConflicts.length > 0 || results.branchConflicts.length > 0)
-        throw new Error("Unresolved conflicts")
-
-    // await dependencyHandler.updateDependencies(results.dependencies, root, version)
-
+    /*
     await createConflictInput({
         module: "test",
         dependants: [
@@ -52,10 +43,12 @@ export default async function(options?: {}) {
                 value: "option2"
             }
         ]
-    }, "source")
+    }, "source")*/
+
+    
 }
 
-
+/*
 async function createConflictInputList(branchConflicts: ModuleDependencyConflict[], sourceConflicts: ModuleDependencyConflict[]): Promise<void> {
     for (let branchConflict of branchConflicts) {
         await createConflictInput(branchConflict, "branch")
@@ -89,4 +82,4 @@ async function createConflictInput(conflict: ModuleDependencyConflict, type: "so
     ])
 
     return results.conflict as string
-}
+}*/

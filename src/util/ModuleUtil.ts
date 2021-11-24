@@ -1,4 +1,4 @@
-import {ModuleJSON} from "../file-mappins/FileMappings";
+import {ModuleJSON} from "../file-mappings/FileMappings";
 import * as fs from "fs";
 import * as Path from "path";
 import { type } from "os";

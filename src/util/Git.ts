@@ -27,3 +27,10 @@ export async function cloneRepo(url: string, branch: string | undefined, folderN
         })
     }
 }
+
+
+
+export function isGitDependency(url: string) {
+    // TODO fix. this.
+    return url.indexOf("/") > -1
+}
