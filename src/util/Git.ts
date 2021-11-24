@@ -2,7 +2,7 @@ import * as shell from "shelljs"
 import * as fs from "fs";
 import * as Path from "path";
 
-export async function cloneRepo(url: string, branch: string | undefined, folderName: string, location: string = process.cwd()) {
+export async function cloneRepo(url: string, branch: string | undefined, folderName: string, unlinkRemote?: string, location: string = process.cwd()) {
     const path = Path.join(location, folderName);
     if(fs.existsSync(path)) {
         throw new Error("Directory exists already")
@@ -18,4 +18,12 @@ export async function cloneRepo(url: string, branch: string | undefined, folderN
             resolve();
         })
     })
+
+    if(unlinkRemote) {
+        await new Promise<void>(resolve => {
+            shell.cd(path)
+            shell.exec(`git remote rm ${unlinkRemote}`, () => resolve())
+            shell.cd(location)
+        })
+    }
 }

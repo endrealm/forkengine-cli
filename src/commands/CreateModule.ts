@@ -18,7 +18,7 @@ export default async function(moduleName?: string, options?: {}) {
                 name: "moduleName",
                 message: "What should the name of your module be",
                 validate(input: string): boolean | string | Promise<boolean | string> {
-                    const re = /^[a-zA-Z0-9_]+$/;
+                    const re = /^[a-zA-Z0-9_-]+$/;
                     return re.test(input)
                 }
             }

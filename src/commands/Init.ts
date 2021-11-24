@@ -12,16 +12,16 @@ export default async function (projectName?: string, options?: {}) {
         const results = await inquirer.prompt([
             {
                 type: "input",
-                name: "moduleName",
-                message: "What should the name of your module be",
+                name: "projectName",
+                message: "What should the name of your project be",
                 validate(input: string): boolean | string | Promise<boolean | string> {
-                    const re = /^[a-zA-Z0-9_]+$/;
+                    const re = /^[a-zA-Z0-9_-]+$/;
                     return re.test(input)
                 }
             }
         ])
 
-        projectName = results.moduleName as string;
+        projectName = results.projectName as string;
     }
 
     const spinner = ora({
@@ -30,8 +30,8 @@ export default async function (projectName?: string, options?: {}) {
 
     const repoName = Config.get<string>("templateProject")
     try {
-        await cloneRepo(repoName, undefined, projectName)
-    } catch {
+        await cloneRepo(repoName, undefined, projectName, "origin")
+    } catch(e) {
         spinner.fail("Failed to clone repository")
         process.exit(1)
         return;

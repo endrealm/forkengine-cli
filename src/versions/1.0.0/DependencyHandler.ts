@@ -134,7 +134,7 @@ export default class DependencyHandler implements IDependencyHandler{
                 // clone it
 
                 const path = Path.join(projectRoot, "modules")
-                await cloneRepo(module.source, module.branch, module.name, path)
+                await cloneRepo(module.source, module.branch, module.name, undefined, path)
             }
         }
     }
