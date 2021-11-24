@@ -7,6 +7,7 @@ import inquirer from "inquirer";
 import {deprecate} from "util";
 import { IDependencyHandler } from "../versions/DependencyHandler";
 import { DependencyHandlerV1 } from "../versions/1.0.0/DepenencyHandler";
+import { yarnInstall } from "../util/Yarn";
 
 export default async function(options?: {}) {
     if(!isForkengineProject()) {
@@ -29,6 +30,8 @@ export default async function(options?: {}) {
         throw new Error(`Unsupported project version detected: ${version}`)
 
     await dependencyHandler.resolveProject()
+
+    await yarnInstall(root);
 
     /*
     await createConflictInput({
