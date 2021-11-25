@@ -4,6 +4,9 @@ import { LocalDependency } from "../../dependencies/LocalDependency";
 import { isGitDependency } from "../../util/Git";
 import { IDependencyHandler } from "../DependencyHandler";
 import { IModuleLoader } from "../ModuleLoader";
+import * as fs from "fs"
+import Path from "path";
+import { ForkengineJSON } from "../../file-mappings/FileMappings";
 
 
 export class DependencyHandlerV1 implements IDependencyHandler {
@@ -20,9 +23,14 @@ export class DependencyHandlerV1 implements IDependencyHandler {
      * and look for conflicts
      */
     async resolveProject() {
+        const bootModule = (JSON.parse(await fs.promises.readFile(Path.join(this.root, "forkengine.json"), "utf8")) as ForkengineJSON).bootModule
+
         const modules: Dependency[] = []
 
-        const mainModule = new LocalDependency("main", this.moduleLoader)
+        const mainModule = this.createModuleInstance({
+            name: bootModule?.name || "main" ,
+            config: bootModule?.config || {}
+        })
         await mainModule.startResolve()
         modules.push(mainModule)
 

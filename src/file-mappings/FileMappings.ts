@@ -1,8 +1,16 @@
+import { type } from "os"
+import { LoadableDependency } from "../dependencies/Dependency"
+
 export type ModuleJSON = {
     version: string,
     dependencies: {
         [dependency: string]: DependencyConfiguration
     }
+}
+
+export type ForkengineJSON = {
+    version: string,
+    bootModule?: LoadableDependency
 }
 
 

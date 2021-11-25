@@ -17,7 +17,7 @@ console.log(
 );
 
 program
-    .command("update", {isDefault: false})
+    .command("install", {isDefault: false})
     .description("installs all dependencies")
     .action(Update)
 
