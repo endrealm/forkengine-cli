@@ -27,8 +27,8 @@ export default async function (projectName?: string, options?: {}) {
 
     const repoName = Config.get<string>("templateProject")
 
-    spinnerWrapPromise("Cloning repository", "Cloned repository", "Failed to clone repository", cloneRepo(repoName, undefined, projectName, "origin"), () => {}, () => process.exit(1))
+    await spinnerWrapPromise("Cloning repository", "Cloned repository", "Failed to clone repository", cloneRepo(repoName, undefined, projectName, "origin"), () => {}, () => process.exit(1))
 
     process.chdir(path.join(process.cwd(), projectName))
-    await CreateModule("main", {})
+    // await CreateModule("main", {})
 }

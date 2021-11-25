@@ -3,7 +3,8 @@ class Config {
     private readonly valueStore: {
         [key: string]: any
     } = {
-        templateProject: "https://github.com/endrealm/forkengine-template.git"
+        templateProject: "https://github.com/endrealm/forkengine-template.git",
+        templateModule: "https://github.com/endrealm/forkengine-module-template"
     }
 
 

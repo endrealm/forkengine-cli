@@ -3,6 +3,9 @@ import ora from "ora";
 import fs from "fs";
 import Path from "path";
 import {getForkengineRoot} from "../../util/FileUtil";
+import { cloneRepo } from "../../util/Git";
+import Config from "../../util/Config";
+import { spinnerWrapPromise } from "../../util/SpinnerUtil";
 
 export default class ModuleCreator implements IModuleCreator {
 
@@ -11,13 +14,15 @@ export default class ModuleCreator implements IModuleCreator {
     }
 
     async createModule(moduleName: string): Promise<any> {
-        const spinner = ora({
-            text: `Creating module "${moduleName}"`,
-        }).start()
+        const repo = Config.get("templateModule") as string
+        const promise = cloneRepo(repo, undefined, moduleName, "origin", Path.join(getForkengineRoot(), "modules"))
 
-        await fs.promises.mkdir(Path.join(getForkengineRoot(), "modules", moduleName), {recursive: true})
-
-        spinner.succeed(`Created module "${moduleName}"`)
+        spinnerWrapPromise(
+            "Cloning module template repository", 
+            "Cloned module template repository", 
+            "Failed to clone module template repository",
+            promise
+        )
     }
 
 }
