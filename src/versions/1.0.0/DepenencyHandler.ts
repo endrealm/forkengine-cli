@@ -7,6 +7,7 @@ import { IModuleLoader } from "../ModuleLoader";
 import * as fs from "fs"
 import Path from "path";
 import { ForkengineJSON } from "../../file-mappings/FileMappings";
+import { spinnerWrapPromise } from "../../util/SpinnerUtil";
 
 
 export class DependencyHandlerV1 implements IDependencyHandler {
@@ -53,7 +54,7 @@ export class DependencyHandlerV1 implements IDependencyHandler {
 
 
                     if(!dependencyModule.isResolved()) {
-                        await dependencyModule.startResolve()
+                        await this.resolveDependency(dependencyModule)
                     }
                 }
             }
@@ -68,6 +69,18 @@ export class DependencyHandlerV1 implements IDependencyHandler {
         }
 
         return new LocalDependency(dependency.name, this.moduleLoader)
+    }
+
+
+    private async resolveDependency(dependency: Dependency) {
+        await spinnerWrapPromise(
+            "Resolving dependency: " + dependency.getName(),
+            "Resolved dependency: " + dependency.getName(),
+            "Failed to resolve dependency " + dependency.getName(),
+            dependency.startResolve(),
+            () => {},
+            () => {throw new Error("failed to resolve " + dependency.getName())}
+        )
     }
 
 }

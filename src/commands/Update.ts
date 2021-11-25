@@ -8,6 +8,7 @@ import {deprecate} from "util";
 import { IDependencyHandler } from "../versions/DependencyHandler";
 import { DependencyHandlerV1 } from "../versions/1.0.0/DepenencyHandler";
 import { yarnInstall } from "../util/Yarn";
+import { spinnerWrapPromise } from "../util/SpinnerUtil";
 
 export default async function(options?: {}) {
     if(!isForkengineProject()) {
@@ -31,7 +32,12 @@ export default async function(options?: {}) {
 
     await dependencyHandler.resolveProject()
 
-    await yarnInstall(root);
+    await spinnerWrapPromise(
+        "Installing Node dependencies",
+        "Installed Node depdendencies",
+        "Failed to install Node dependencies",
+        yarnInstall(root)
+    )
 
     /*
     await createConflictInput({

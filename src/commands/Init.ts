@@ -5,6 +5,7 @@ import ora from "ora"
 import CreateModule from "./CreateModule";
 import path from "path";
 import Config from "../util/Config";
+import { spinnerWrapPromise } from "../util/SpinnerUtil";
 
 
 export default async function (projectName?: string, options?: {}) {
@@ -24,20 +25,9 @@ export default async function (projectName?: string, options?: {}) {
         projectName = results.projectName as string;
     }
 
-    const spinner = ora({
-        text: "Cloning repository"
-    }).start()
-
     const repoName = Config.get<string>("templateProject")
-    try {
-        await cloneRepo(repoName, undefined, projectName, "origin")
-    } catch(e) {
-        spinner.fail("Failed to clone repository")
-        process.exit(1)
-        return;
-    }
 
-    spinner.succeed("Cloned repository")
+    spinnerWrapPromise("Cloning repository", "Cloned repository", "Failed to clone repository", cloneRepo(repoName, undefined, projectName, "origin"), () => {}, () => process.exit(1))
 
     process.chdir(path.join(process.cwd(), projectName))
     await CreateModule("main", {})

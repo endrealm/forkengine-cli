@@ -2,6 +2,7 @@ import { resolve } from "path/posix"
 import * as shell from "shelljs"
 
 export async function yarnInstall(location: string = process.cwd()) {
+    shell.config.silent = true
     shell.cd(location)
     await new Promise<void>(resolve => {
         shell.exec("yarn install", () => resolve());
