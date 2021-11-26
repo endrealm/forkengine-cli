@@ -15,7 +15,8 @@
     "refresh": "rm -rf ./node_modules ./package-lock.json && npm install"
   },
   "keywords": [],
-  "author": "",
+  "author": "Endrealm",
+  "repository": "https://github.com/endrealm/forkengine-cli",
   "license": "ISC",
   "dependencies": {
     "@types/inquirer": "^7.3.3",
