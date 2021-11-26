@@ -17,7 +17,7 @@
   "keywords": [],
   "author": "Endrealm",
   "repository": "https://github.com/endrealm/forkengine-cli",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@types/inquirer": "^7.3.3",
     "@types/inquirer-fuzzy-path": "^2.3.1",
