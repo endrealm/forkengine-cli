@@ -1,8 +1,8 @@
 {
   "name": "forkengine-cli",
-  "version": "1.0.0",
+  "version": "1.0.0-pre",
   "description": "",
-  "main": "./libindex.js",
+  "main": "./lib/index.js",
   "bin": {
     "forkengine-cli": "./lib/index.js"
   },
